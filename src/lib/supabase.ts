@@ -1,39 +1,28 @@
 /// <reference types="vite/client" />
-import { createClient } from '@supabase/supabase-client';
+import { createClient } from '@supabase/supabase-js'
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://placeholder.supabase.co'
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'placeholder-key'
 
-if (!supabaseUrl || !supabaseAnonKey) {
-  console.warn('Supabase credentials missing. Some features like authentication and data persistence will be unavailable.');
-}
+// Supabase client - falls back gracefully if env vars are not set
+export const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
-export const supabase = createClient(
-  supabaseUrl || 'https://placeholder.supabase.co',
-  supabaseAnonKey || 'placeholder'
-);
+// Tracks whether Supabase is reachable. Used by the UI to show "Local Mode" badge.
+export let isSupabaseOnline = false;
 
-export type TableRow<T extends keyof any> = any; // Placeholder for generated types
-
-export const SupabaseService = {
-  async getProfile(userId: string) {
-    const { data, error } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('id', userId)
-      .single();
-    
-    if (error) throw error;
-    return data;
-  },
-
-  async updateProfile(userId: string, updates: any) {
-    const { data, error } = await supabase
-      .from('profiles')
-      .update(updates)
-      .eq('id', userId);
-    
-    if (error) throw error;
-    return data;
+// Run a lightweight connectivity check on startup without blocking the app.
+(async () => {
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 5000);
+    const res = await fetch(`${supabaseUrl}/rest/v1/`, {
+      signal: controller.signal,
+      headers: { apikey: supabaseAnonKey }
+    });
+    clearTimeout(timeoutId);
+    isSupabaseOnline = res.ok || res.status === 401; // 401 = server up, just unauthorized
+  } catch (_) {
+    isSupabaseOnline = false;
+    console.warn('[BritSee] Supabase unreachable — running in local mode. Chat history will be stored locally only.');
   }
-};
+})();

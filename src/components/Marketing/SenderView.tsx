@@ -19,10 +19,11 @@ interface SenderViewProps {
 
 export const SenderView: React.FC<SenderViewProps> = ({ profile }) => {
   const [campaign, setCampaign] = useState({
-    name: '',
+    campaignName: '',
     subject: '',
-    body: '',
-    listId: ''
+    htmlContent: '',
+    senderName: profile?.businessName || '',
+    recipients: [] as string[]
   });
   const [isGenerating, setIsGenerating] = useState(false);
   const [isLaunching, setIsLaunching] = useState(false);
@@ -57,7 +58,7 @@ export const SenderView: React.FC<SenderViewProps> = ({ profile }) => {
       const response = await AIService.chat([{ role: 'user', content: prompt }]);
       setCampaign({
         ...campaign,
-        body: response,
+        htmlContent: response,
         subject: `Partnership Inquiry from ${profile?.businessName}`
       });
     } finally {
@@ -117,8 +118,8 @@ export const SenderView: React.FC<SenderViewProps> = ({ profile }) => {
                 <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Campaign Name</label>
                 <input 
                   type="text" 
-                  value={campaign.name}
-                  onChange={(e) => setCampaign({...campaign, name: e.target.value})}
+                  value={campaign.campaignName}
+                  onChange={(e) => setCampaign({...campaign, campaignName: e.target.value})}
                   placeholder="e.g. Q1 Partnership Outreach"
                   className="w-full bg-black/40 border border-white/5 rounded-xl px-4 py-3 text-slate-300 outline-none focus:border-indigo-500/50"
                 />
@@ -135,18 +136,29 @@ export const SenderView: React.FC<SenderViewProps> = ({ profile }) => {
               </div>
 
               <div className="space-y-2">
-                <label className="text-[10px) font-bold text-slate-500 uppercase tracking-widest">Email Body</label>
+                <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Email Body</label>
                 <textarea 
                   rows={8}
-                  value={campaign.body}
-                  onChange={(e) => setCampaign({...campaign, body: e.target.value})}
+                  value={campaign.htmlContent}
+                  onChange={(e) => setCampaign({...campaign, htmlContent: e.target.value})}
                   className="w-full bg-black/40 border border-white/5 rounded-xl px-4 py-3 text-slate-300 outline-none focus:border-indigo-500/50 font-mono text-sm leading-relaxed"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Recipients (emails, comma separated)</label>
+                <input 
+                  type="text" 
+                  value={campaign.recipients.join(', ')}
+                  onChange={(e) => setCampaign({...campaign, recipients: e.target.value.split(',').map(s => s.trim())})}
+                  placeholder="e.g. hello@company.com, info@agency.co.uk"
+                  className="w-full bg-black/40 border border-white/5 rounded-xl px-4 py-3 text-slate-300 outline-none focus:border-indigo-500/50"
                 />
               </div>
 
               <button 
                 onClick={handleLaunch}
-                disabled={isLaunching || !campaign.name}
+                disabled={isLaunching || !campaign.campaignName || campaign.recipients.length === 0}
                 className="w-full py-4 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl font-bold transition-all flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/20 disabled:opacity-50"
               >
                 {isLaunching ? <Loader2 size={20} className="animate-spin" /> : <Send size={20} />}

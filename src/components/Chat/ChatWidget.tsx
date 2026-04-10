@@ -28,11 +28,11 @@ const uniquifyMessages = (msgs: Message[]): Message[] => {
 };
 
 // --- Chat Widget Component ---
-export const ChatWidget = ({ businessName = 'Britsee' }) => {
+export const ChatWidget = ({ businessName = 'BritSync' }) => {
   const [isOpen, setIsOpen] = useState(false);
   // Initialize state from localStorage if available
   const [messages, setMessages] = useState<Message[]>(() => {
-    const saved = localStorage.getItem('britsee_messages');
+    const saved = localStorage.getItem('britc_messages');
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
@@ -48,7 +48,7 @@ export const ChatWidget = ({ businessName = 'Britsee' }) => {
   const [attachments, setAttachments] = useState<FileAttachment[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [discoveryStep, setDiscoveryStep] = useState(() => {
-    const saved = localStorage.getItem('britsee_discovery_step');
+    const saved = localStorage.getItem('britc_discovery_step');
     return saved ? parseInt(saved) : 0;
   });
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -79,11 +79,11 @@ export const ChatWidget = ({ businessName = 'Britsee' }) => {
 
   // Sync with localStorage
   useEffect(() => {
-    localStorage.setItem('britsee_messages', JSON.stringify(messages));
+    localStorage.setItem('britc_messages', JSON.stringify(messages));
   }, [messages]);
 
   useEffect(() => {
-    localStorage.setItem('britsee_discovery_step', discoveryStep.toString());
+    localStorage.setItem('britc_discovery_step', discoveryStep.toString());
   }, [discoveryStep]);
 
   // Initial welcome if no history
@@ -92,7 +92,7 @@ export const ChatWidget = ({ businessName = 'Britsee' }) => {
       const welcomeMsg: Message = {
         id: 'welcome',
         role: 'assistant',
-        content: `Hi there! I'm **Britsee**, your executive growth partner for **${businessName}**. 
+        content: `Hi there! I'm **BritC**, your executive growth partner for **${businessName}**. 
         
 I'm currently auditing our strategic posture. To help me provide the most value, could you briefly describe your **main business goal** for this quarter?`,
         timestamp: new Date()
@@ -145,7 +145,7 @@ I'm currently auditing our strategic posture. To help me provide the most value,
     try {
       const response = await AIService.chat(
         [...messages, userMsg].map(m => ({ role: m.role, content: m.content })),
-        true 
+        { isWidget: true } 
       );
 
       const { cleanText } = parseAction(response);
@@ -168,7 +168,7 @@ I'm currently auditing our strategic posture. To help me provide the most value,
         timestamp: new Date()
       }]));
     } catch (err: any) {
-      console.error('Britsee Widget Error:', err);
+      console.error('BritC Widget Error:', err);
       setMessages(prev => [...prev, {
         id: `err_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
         role: 'assistant',
@@ -181,8 +181,8 @@ I'm currently auditing our strategic posture. To help me provide the most value,
   };
 
   const clearHistory = () => {
-    localStorage.removeItem('britsee_messages');
-    localStorage.removeItem('britsee_discovery_step');
+    localStorage.removeItem('britc_messages');
+    localStorage.removeItem('britc_discovery_step');
     setMessages([]);
     setDiscoveryStep(0);
   };
@@ -204,7 +204,7 @@ I'm currently auditing our strategic posture. To help me provide the most value,
                   <Bot size={22} className="text-white" />
                 </div>
                 <div>
-                  <h3 className="text-white font-bold text-sm">Britsee Growth Partner</h3>
+                  <h3 className="text-white font-bold text-sm">BritC Growth Partner</h3>
                   <div className="flex items-center gap-1.5">
                     <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse" />
                     <span className="text-[10px] text-indigo-100 font-medium tracking-wide">Strategic & Results-Driven</span>
@@ -318,7 +318,7 @@ I'm currently auditing our strategic posture. To help me provide the most value,
                     value={input}
                     onChange={e => setInput(e.target.value)}
                     onKeyDown={e => e.key === 'Enter' && handleSend()}
-                    placeholder="Analyze growth with Britsee..."
+                    placeholder="Analyze growth with BritC..."
                     className="w-full bg-white/5 border border-white/10 focus:border-indigo-500 rounded-xl pl-4 pr-16 py-2.5 text-sm text-white outline-none transition-all"
                   />
                   <div className="absolute right-1 top-1/2 -translate-y-1/2 flex items-center">
@@ -350,7 +350,7 @@ I'm currently auditing our strategic posture. To help me provide the most value,
               <input type="file" ref={fileInputRef} className="hidden" onChange={handleFileChange} multiple accept=".txt,.pdf,.doc,.docx,.csv,.json,.md" />
               <input type="file" ref={imageInputRef} className="hidden" onChange={handleFileChange} multiple accept="image/*" />
               
-              <p className="text-[10px] text-slate-600 mt-2 text-center font-medium">Powering your growth with Britsee</p>
+              <p className="text-[10px] text-slate-600 mt-2 text-center font-medium">Powering your growth with BritSync BritC</p>
             </div>
           </motion.div>
         )}
