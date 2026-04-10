@@ -23,6 +23,7 @@ export const SettingsService = {
   getAIProvider: (): 'groq' => {
     return 'groq';
   },
+  // Groq API Key
   getGroqApiKey: (): string => {
     return localStorage.getItem('britsee_groq_api_key') ||
       (import.meta as any).env.VITE_GROQ_API_KEY ||

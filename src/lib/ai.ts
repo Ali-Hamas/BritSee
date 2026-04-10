@@ -123,7 +123,7 @@ export class AIService {
 
             return await GroqService.chat(groqMessages, model, apiKey);
         } catch (error: any) {
-            console.error('Britsee Engine Error:', error);
+            console.error('BritC Engine Error:', error);
             // Temporarily returning raw error to debug specific failure cause
             return `⚠️ AI Error: ${error.message || "Failed to connect to context engine."}`;
         }
